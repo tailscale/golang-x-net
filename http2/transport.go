@@ -1266,11 +1266,11 @@ func (cc *ClientConn) RoundTrip(req *http.Request) (*http.Response, error) {
 		return res, nil
 	}
 
-	cancelRequest := func(cs *clientStream, err error) error {
+	cancelRequest := func(cs *clientStream, markDoNotReuse bool, err error) error {
 		cs.cc.mu.Lock()
 		cs.abortStreamLocked(err)
 		bodyClosed := cs.reqBodyClosed
-		if cs.ID != 0 {
+		if markDoNotReuse && cs.ID != 0 {
 			// This request may have failed because of a problem with the connection,
 			// or for some unrelated reason. (For example, the user might have canceled
 			// the request without waiting for a response.) Mark the connection as
@@ -1318,12 +1318,12 @@ func (cc *ClientConn) RoundTrip(req *http.Request) (*http.Response, error) {
 				return handleResponseHeaders()
 			default:
 				waitDone()
-				return nil, cancelRequest(cs, cs.abortErr)
+				return nil, cancelRequest(cs, true, cs.abortErr)
 			}
 		case <-ctx.Done():
-			return nil, cancelRequest(cs, ctx.Err())
+			return nil, cancelRequest(cs, false, ctx.Err())
 		case <-cs.reqCancel:
-			return nil, cancelRequest(cs, errRequestCanceled)
+			return nil, cancelRequest(cs, false, errRequestCanceled)
 		}
 	}
 }

@@ -1286,6 +1286,7 @@ func (cc *ClientConn) RoundTrip(req *http.Request) (*http.Response, error) {
 
 			if f := cs.cc.t.CountError; f != nil {
 				f("abort_set_do_not_reuse")
+				log.Printf("ts-http2: set do not reuse: %T, %v", err, err)
 			}
 		}
 		cs.cc.mu.Unlock()

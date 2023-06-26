@@ -1283,6 +1283,10 @@ func (cc *ClientConn) RoundTrip(req *http.Request) (*http.Response, error) {
 			// is set, for example, in which case retrying on a different connection
 			// will not help.
 			cs.cc.doNotReuse = true
+
+			if f := cs.cc.t.CountError; f != nil {
+				f("abort_set_do_not_reuse")
+			}
 		}
 		cs.cc.mu.Unlock()
 		// Wait for the request body to be closed.

@@ -3857,6 +3857,7 @@ func TestTransportRetryAfterGOAWAY(t *testing.T) {
 }
 
 func TestTransportRetryAfterRefusedStream(t *testing.T) {
+	t.Skip("broken by 82780d60 and later reverts; see https://github.com/golang/go/issues/60818 and https://github.com/tailscale/corp/issues/12296")
 	clientDone := make(chan struct{})
 	client := func(tr *Transport) {
 		defer close(clientDone)
